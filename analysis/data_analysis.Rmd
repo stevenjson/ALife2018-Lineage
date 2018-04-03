@@ -20,13 +20,16 @@ real_value_data <- merge(alex_real_value_data, emily_real_value_data, all = TRUE
 real_value_data$problem <- sapply(as.character(real_value_data$p),switch,"0"="Himmelblau","1"="Six-hump camel back","2"="Shubert", "6"="Composition function 2")
 real_value_data$problem <- as.factor(real_value_data$problem)
 real_value_data$selection <- sapply(as.character(real_value_data$selection),switch,"0"="Tournament","1"="Lexicase","2"="Eco-EA", "3"="MAP-Elites", "4"="Roulette", "5"="Drift")
+real_value_data$ts <- with(real_value_data, ifelse(selection=="Drift", 1, ts))
 real_value_data$selection <- as.factor(real_value_data$selection)
 real_value_data$seed <- as.factor(real_value_data$seed)
 #real_value_data$ts <- as.factor(real_value_data$ts)
 real_value_data$elite <- as.factor(real_value_data$elite)
 #real_value_data$mutation_rate <- as.factor(real_value_data$mutation_rate)
-tournament_data <- subset(real_value_data, real_value_data$selection == "Tournament" & real_value_data$elite == 0)
+tournament_data <- subset(real_value_data, (real_value_data$selection == "Tournament" | real_value_data$selection=="Drift") & real_value_data$elite == 0)
 tournament_endpoints <- filter(tournament_data, update==5000)
+tournament_endpoints$disp_pairwise_distance <- tournament_endpoints$variance_pairwise_distance/tournament_endpoints$mean_pairwise_distance
+tournament_endpoints$disp_evo_distinct <- tournament_endpoints$variance_evolutionary_distinctiveness/tournament_endpoints$mean_evolutionary_distinctiveness
 
 all_dom_data <- read_csv("~/repos/ALife2018-Lineage/analysis/cec_python_library/all_dom_data.csv")
 all_dom_data$update <- 5000
@@ -39,21 +42,21 @@ all_dom_data$path <- NULL
 
 tournament_endpoints <- merge(tournament_endpoints, all_dom_data)
 melted_tournament_data <- melt(tournament_endpoints, id.vars = c("update", "selection", "seed", "elite", "mutation_rate", "le", "p", "problem", "g", "ts", "TOURNAMENT_SIZE", "FITNESS_INTERVAL", "RESOURCE_SELECT__OUTFLOW", "MUTATION_STD", "SELECTION_METHOD", "RESOURCE_SELECT__RES_AMOUNT", "HINT_GRID_RES", "RESOURCE_SELECT__RES_INFLOW", "LEXICASE_EPSILON", "SYSTEMATICS_INTERVAL", "RESOURCE_SELECT__FRAC", "RESOURCE_SELECT__COST", "RESOURCE_SELECT__MAX_BONUS", "POP_SNAPSHOT_INTERVAL", "POP_SIZE", "ELITE_SELECT__ELITE_CNT", "GENERATIONS"))
-end_points_vars_of_interest <- melted_tournament_data %>%  filter(variable %in% c("mrca_depth", "dominant_deleterious_steps", "mean_evolutionary_distinctiveness", "variance_evolutionary_distinctiveness", "current_phylogenetic_diversity", "mean_pairwise_distance", "variance_pairwise_distance", "phenotypic_volatility"))
+end_points_vars_of_interest <- melted_tournament_data %>%  filter(variable %in% c("mrca_depth", "dominant_deleterious_steps", "current_phylogenetic_diversity", "mean_pairwise_distance", "phenotypic_volatility", "total_magnitude"))
 
-labels <- c(current_phylogenetic_diversity = "Phylogenetic diversity", dominant_deleterious_steps = "Dominant deleterious steps", mean_evolutionary_distinctiveness="Mean evo. distinctiveness", mean_pairwise_distance="Mean pairwise distance", mrca_depth="MRCA depth", variance_evolutionary_distinctiveness="Variance evo. distinctiveness", variance_pairwise_distance = "Variance pairwise distance", phenotypic_volatility="Phenotypic volatility")
+labels <- c(current_phylogenetic_diversity = "Phylogenetic diversity", dominant_deleterious_steps = "Deleterious steps", mean_evolutionary_distinctiveness="Mean evo. distinctiveness", mean_pairwise_distance="Mean pairwise distance", mrca_depth="MRCA depth", variance_evolutionary_distinctiveness="Variance evo. distinctiveness", variance_pairwise_distance = "Variance pairwise distance", phenotypic_volatility="Phenotypic volatility", total_magnitude="Mutation accumulation")
 
 
 ```
 
 ```{r}
-ggplot(subset(end_points_vars_of_interest, end_points_vars_of_interest$mutation_rate==.001), aes(x=ts, y=value, color=problem, group=problem)) + stat_summary(fun.y = median, fun.ymin = function(x){quantile(x)[2]}, fun.ymax=function(x){quantile(x)[4]}) +stat_summary(geom="line", fun.y=median)+ theme_classic() + scale_x_log10("Tournament size", breaks=c(2,4,8,16)) + scale_y_continuous("", labels=comma) + facet_wrap(~variable, scales="free_y", labeller = labeller(variable=labels)) + scale_color_discrete("Problem") + theme(legend.position = "bottom")
-ggsave("../figs/all_ts.png", width=7, height=5) 
+ggplot(subset(end_points_vars_of_interest, end_points_vars_of_interest$mutation_rate==.001), aes(x=ts, y=value, fill=problem, color=problem, group=problem)) + stat_summary(fun.y = median, fun.ymin = function(x){quantile(x)[2]}, fun.ymax=function(x){quantile(x)[4]}) +stat_summary(geom="smooth", fun.data="mean_cl_boot")+ theme_classic() + scale_x_log10("Tournament size", breaks=c(1,2,4,8,16)) + scale_y_log10("", labels=scientific, breaks = scales::trans_breaks("log10", function(x) 10^x)) + facet_wrap(~variable, scales="free_y", labeller = labeller(variable=labels),ncol=2) + scale_color_discrete("Problem") + theme(legend.position = "bottom", legend.title = element_text(size=10), legend.text = element_text(size=6), strip.text = element_text(size=6), axis.text = element_text(size=6)) + guides(color=guide_legend(ncol=2), fill="none")
+ggsave("../figs/all_ts.png", width=3.5, height=4.5) 
 ```
 
 
 ```{r}
-ggplot(subset(end_points_vars_of_interest, end_points_vars_of_interest$ts==4), aes(x=mutation_rate, y=value, color=problem)) + stat_summary(fun.y = median, fun.ymin = function(x){quantile(x)[2]}, fun.ymax=function(x){quantile(x)[4]}) +stat_summary(geom="line", fun.y=median)+ theme_classic() + scale_x_log10("Mutation rate", labels=scientific) + scale_y_continuous("", labels=comma) + facet_wrap(~variable, scales="free_y", labeller = labeller(variable=labels)) +scale_color_discrete("Problem") +theme(legend.position = "bottom")
-ggsave("../figs/all_mutation_rate.png", width=7, height=5)
+ggplot(subset(end_points_vars_of_interest, end_points_vars_of_interest$ts==4), aes(x=mutation_rate, y=value, fill=problem, color=problem)) + stat_summary(fun.y = median, fun.ymin = function(x){quantile(x)[2]}, fun.ymax=function(x){quantile(x)[4]}) +stat_summary(geom="smooth", fun.data="mean_cl_boot")+ theme_classic() + scale_x_log10("Mutation rate", labels=scientific) + scale_y_log10("", breaks = scales::trans_breaks("log10", function(x) 10^x), labels=scientific) + facet_wrap(~variable, scales="free_y", labeller = labeller(variable=labels), ncol=2) +scale_color_discrete("Problem") + theme(legend.position = "bottom", legend.title = element_text(size=10), legend.text = element_text(size=6), strip.text = element_text(size=6), axis.text = element_text(size=6)) + guides(color=guide_legend(ncol=2), fill="none")
+ggsave("../figs/all_mutation_rate.png", width=3.5, height=4.5)
 
 ```
