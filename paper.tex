@@ -84,33 +84,54 @@ dolsonem@msu.edu} % email of corresponding author
 \maketitle
 
 \begin{abstract}
-We suggest a suite of diagnostic metrics that operate on lineages and phylogenies in digital evolution experiments with the aim of improving our capacity to quantitatively explore evolutionary histories in digital evolution experiments.
+Fine-scale evolutionary dynamics can be challenging to tease out when focused on broad brush stokes of whole populations over long timespans.
+We propose a suite of diagnostic metrics that operate on lineages and phylogenies in digital evolution experiments with the aim of improving our capacity to quantitatively explore the nuances of evolutionary histories in digital evolution experiments.
 We present three types of lineage measurements: lineage length, mutation accumulation, and phenotypic volatility. 
-Additionally, we suggest the adoption of four phylogeny measurements from biology: most-recent common ancestor depth, phylogenetic richness, phylogenetic divergence, and phylogenetic regularity. 
+Additionally, we suggest the adoption of four phylogeny measurements from biology: depth of the most-recent common ancestor, phylogenetic richness, phylogenetic divergence, and phylogenetic regularity. 
 We demonstrate the use of each metric on a set of two-dimensional, real-valued optimization problems under a range of mutation rates and selection strengths, confirming our intuitions about what they can tell us about evolutionary dynamics. 
 
 \end{abstract}
 
 \section{Introduction}
 
-Evolution is a collective effect of many smaller events such as replication, variation, and competition that occur on a much finer-grained temporal scale. While evolution's emergent nature is a large part of why it is so fascinating, it also presents challenges to studying the short-term mechanisms that govern long-term results. In computational evolutionary systems, we can collect data to help untangle these mechanisms. In practice, though, gathering this data can be challenging. 
-Moreover, because evolutionary effects can be witnessed on a vastly different scale from their causes, the quantity of such data can be overwhelming.
-Both of these problems can be mitigated with a standardized set of diagnostic metrics that summarize shorter-term evolutionary dynamics within a population. Here, we suggest a suite of such metrics that operate on lineages and phylogenies. We then use experimental results to provide an intuition for what they can tell us about evolution.
+Evolution is a collective effect of many smaller events such as replication, variation, and competition that occur on a fine-grained temporal scale. While evolution's emergent nature %is a large part of why it is so 
+can be
+fascinating, it also presents challenges to studying the short-term mechanisms that, in aggregate, govern long-term results. In computational evolutionary systems, we can theoretically collect data to help untangle these mechanisms. In practice, however, %gathering this data can be challenging. 
+%Moreover, because evolutionary effects can be witnessed on a vastly different scale from their causes, the quantity of such data can be overwhelming.
+the sheer number of constituent events produce an overwhelming quantity of data.
+%Both of these problems can be mitigated with
+In response, we have developed
+a standardized set of diagnostic metrics that summarize short-term evolutionary dynamics within a population. Here, we describe a suite of such metrics that operate on lineages and phylogenies, and provide experimental results to help develop an intuition for what they can tell us about evolution.
 
-A lineage describes a continuous line of descent, linking ancestors and their descendants. A complete lineage can provide a post-hoc, step-by-step guide to the evolution of an extant organism where each step involves replication and inherited variation. Indeed, lineage analyses are a powerful tool for disentangling evolutionary dynamics in both natural and digital systems; digital systems, however, allow for fine-grained lineage tracking at resolutions that are impossible in modern wet lab experiments, allowing us to replay the tape of life in exacting detail and to tease apart the evolutionary recipe for whatever complex feature or phenomenon we happen to be interested in~\citep{mcphee_using_2016}. 
-In a more famous example, Lenski \textit{et al.}, used the lineage of an evolved digital organism in Avida to tease apart, step-by-step how a complex feature (the capacity to perform the equals logical operation) emerged~\citep{lenski_evolutionary_2003}. %@SPJ: 'More famous example' sounds a bit weird to me
+A lineage describes a continuous line of descent, linking %ancestors and their descendants. 
+parents and offspring in an unbroken chain from an original ancestor.
+A complete lineage can provide a post-hoc, step-by-step guide to the evolution of an extant organism where each step involves replication and inherited variation. Indeed, lineage analyses are a powerful tool for disentangling evolutionary dynamics in both natural and digital systems; digital systems, however, allow for 
+%fine-grained lineage tracking at resolutions that are 
+perfect lineage tracking at a level of granularity that is
+impossible in modern wet lab experiments.  These data allow us to replay the tape of life in exacting detail and to tease apart the evolutionary recipe for whatever complex feature or phenomenon we happen to be interested in~\citep{mcphee_using_2016}. 
+In 
+%a more famous
+one notable
+example, Lenski \textit{et al.}, used the lineage of an evolved digital organism in Avida to tease apart, step-by-step how a complex feature (the capacity to perform the equals logical operation) emerged~\citep{lenski_evolutionary_2003}. %@SPJ: 'More famous example' sounds a bit weird to me
 
-Yet, tracking the full details of a single lineage, much less a population of lineages, can be computationally expensive and will inevitably generate an unwieldy amount of data that can be challenging to visualize and interpret~\citep{mcphee_visualizing_2016}.
-Summary statistics can help alleviate these issues by enabling the user to focus on aggregate trends across a population rather than needing to examine each individual's lineage. The question is how to effectively summarize what is essentially a path through fitness space. A useful abstraction is to treat the path as a sequence of states. Here, we will use phenotypes and genotypes as the states in the sequence, but we could just as easily use some other descriptor of the lineage's position in the fitness landscape at a given point in time.
+Yet, tracking the full details of a single lineage, much less a population of lineages, can be computationally expensive and will inevitably generate an unwieldy amount of data that can be challenging to visualize or interpret~\citep{mcphee_visualizing_2016}.
+Summary statistics can help alleviate these issues by enabling the user to focus on aggregate trends across a population rather than needing to examine each individual's lineage. The question is how to effectively summarize %what is essentially 
+a path through fitness space. One useful abstraction is to treat the path as a sequence of states. Here, we use phenotypes and genotypes as the states in the sequence, but we could just as easily use some other descriptor of the lineage's position in the fitness landscape at a given point in time.
 With this abstraction in hand, a few metrics are easily formalized: the number of unique states, the number of transitions between states, and the amount of time spent in each state.
-Additionally, we may care about how the transitions between states happened. What mutations lead to them? Were those mutations beneficial, deleterious, or neutral at the time? Here, we choose a subset of these metrics that we expect will be particularly useful to explore further.
+Additionally, we may care about how the transitions between states happened. What mutations led to them? Were those mutations beneficial, deleterious, or neutral at the time? These mutations are particularly notable because they did not simply appear briefly, but stood the test of time, leaving descendants in the final population.
+%@CAO: Does the sentence I added above make sense?  My point being that these aren't just a random sampling of possible mutations that we are considering.  It's almost worth an extra sentence to point out that any deleterious mutations on the lineage are of special interest since they made it into the lineage despite being actively selected against.
+% @AML: I think so. My interpretation: all mutations (beneficial, deleterious, neutral, etc., etc.) that appear on a lineage of an extant individual are particularly notable. 
+%Here, we choose a subset of these metrics that we expect will be broadly useful to explore further.
+Here, we explore a subset of these metrics that we expect will be broadly useful.
 
-Whereas a lineage represents the evolutionary history of a single individual, a phylogeny represents the evolutionary history of an entire population. Measurements that summarize phylogenies can provide useful insight into population-level evolutionary dynamics, such as diversification and co-existence among different clades. A variety of useful phylogeny measurements have already been developed by biologists~\citep{tucker_guide_2017}. These measurements tend to treat the phylogeny as a graph and make calculations about its topology. Tucker \textit{et al.} group them into three broad categories: assessments of the quantity of evolutionary history represented by a population, assessments of the amount of divergence within that evolutionary history, and assessments of the topological regularity of the phylogenetic tree. Such measurements can help quantify the behavior of the population as a whole, providing insight into interactions between its members. Thus, they are useful indicators of the presence of various types of eco-evolutionary dynamics.
+Whereas a lineage recounts the evolutionary history of a single individual, a phylogeny details the evolutionary history of an entire population. Measurements that summarize phylogenies can provide useful insight into population-level evolutionary dynamics, such as diversification and co-existence among different clades. A variety of useful phylogeny measurements have already been developed by biologists~\citep{tucker_guide_2017}. These measurements tend to treat the phylogeny as a graph and make calculations about its topology. Tucker \textit{et al.} group them into three broad categories: assessments of the quantity of evolutionary history represented by a population, assessments of the amount of divergence within that evolutionary history, and assessments of the topological regularity of the phylogenetic tree. Such measurements can help quantify the behavior of the population as a whole, providing insight into interactions between its members. Thus, they are useful indicators of the presence of various types of eco-evolutionary dynamics.
 %@AML: I think the next bit (just moved it) might belong in the metrics section. Instead, we might want a little more elaboration on each of the categories of metrics.
 %@ELD: Is that too handwavy?
 %@AML: Nah! Handwaving is just what we needed! 
 
-Here, we present three types of lineage measurements: lineage length, mutation accumulation, and phenotypic volatility. Additionally, we suggest the adoption of four phylogeny measurements from biology: most-recent common ancestor depth, phylogenetic richness, phylogenetic divergence, and phylogenetic regularity. For each metric, we discuss its application and our intuitions for what it can tell us about evolution. We evaluate our intuitions on a set of two-dimensional, real-valued optimization problems under a range of mutation rates and selection strengths. For this work, we restrict our attention to asexually reproducing populations; however, we make suggestions as to how these metrics can be extended to sexual populations. 
+%Here, we present three types of lineage measurements: lineage length, mutation accumulation, and phenotypic volatility. Additionally, we suggest the adoption of four phylogeny measurements from biology: depth of the most-recent common ancestor, phylogenetic richness, phylogenetic divergence, and phylogenetic regularity.
+Here, we present three types of lineage measurements and suggest adopting four phylogeny measurements from biology; these are lineage length, mutation accumulation, phenotypic volatility, depth of the most-recent common ancestor, phylogenetic richness, phylogenetic divergence, and phylogenetic regularity.
+For each metric, we discuss its application and our intuition for what it can tell us about evolution. We evaluate our intuition on a set of two-dimensional, real-valued optimization problems under a range of mutation rates and selection strengths. For this work, we restrict our attention to asexually reproducing populations; however, we suggest how these metrics can extend to sexual populations. 
 
 %@AML:  It might be nice to wrap this section up with a little bit of a 'call to action'/'why should you care about this as a community'
 %@ELD: I am in favor.
@@ -178,7 +199,7 @@ Lineage length describes the number of ancestral states traversed by a lineage. 
 %@ELD: I've always heard these called r- and k- selected rather than replicator, but I'm totally willing to believe these terms are used too.
 %@AML: Yup. I have no idea if I've ever heard them referred to as 'r-replicator vs. k-replicator'. I'm going to get rid of the two parentheticals for now.
 %@ELD: I like the idea of putting it in that context. I was just suggesting we replace "replicator" with "selected"
-%@AML: Put the parantheticals back. 
+%@AML: Put the parentheticals back. 
 
 Lineage length becomes an increasingly flexible and informative metric if we begin to consider more abstract definitions of an ancestral state along a lineage. 
 We might measure lineage length where an ancestral state represents a temporally continuous sequence of individuals that share a phenotypic or genotypic characteristic of interest. In these cases, lineage length only increases if the characteristic of interest changes from parent to offspring. For example, in an environment where organisms must perform a set of tasks to be successful, we might define ancestral state to be the set of tasks performed by an individual (\textit{e.g.} the set of logic operations performed by a digital organism in the default logic 9 Avida environment). In this scenario, lineage length would only increase when the set of tasks performed by an ancestor changes; any sequential ancestors that perform the identical sets of tasks would be compressed into a single state in the sequence. 
@@ -216,16 +237,12 @@ In systems with continuous-valued phenotypes, a subtly different approach is nee
 % SPJ: What is meant by 'rolling mean' ?
 %@ELD: Would "moving average" be more familiar? 
 
-% TODO
-
 % Define/describe
 % .... 
 % Useful things that this metric could identify:
 % - Mutational bet hedging (high volatility)
 % - Plasticity (high volatility)
 % - Neutral landscapes (expect low volatility)
-
-% Here, we... 
 
 \subsubsection{Summary statistics}
 
@@ -283,8 +300,8 @@ To understand the metrics defined above, the test problems used need to be well 
 For each test problem, we evolved populations of 1000 digital organisms under a range of mutation rates and selection strengths for 5000 generations. Each digital organism's genome consisted of two floating point numbers that defined its position in the fitness landscape. 
 We initialized populations by randomly generating a number of organisms equal to the population size. 
 To determine which organisms reproduced each generation, we used tournament selection. We evolved populations under five different tournament sizes: one, two, four, eight, and sixteen.  Tournament size represents strength of selection where higher tournament sizes correspond to a higher strength of selection and lower tournament sizes correspond to a lower strength of selection~\citep{blickle1995mathematical}.
-A tournament size of one is equivalent to no selection pressure (\textit{i.e.} every organism in the population has an equal chance of being selected to reproduce). Organisms selected to reproduce did so asexually. Each value in an offspring's genome was mutated by adding noise given by a normal distribution with a mean of 0; the `mutation rate' of a treatment defined the standard deviation used to defined this normal distribution and was given as a proportion of the test problem's domain. 
-We prevented mutations from causing a value from exceeding the valid domain of the given problem. 
+A tournament size of one is equivalent to no selection pressure (\textit{i.e.} every organism in the population has an equal chance of being selected to reproduce). Organisms selected to reproduce did so asexually. Each value in an offspring's genome was mutated by adding noise given by a normal distribution with a mean of 0; the `mutation rate' of a treatment defined the standard deviation used to define this normal distribution and was given as a proportion of the test problem's domain. 
+We prevented mutations from causing a value to exceed the valid domain of the given problem. 
 For each problem and tournament size, we evolved populations at eight mutation rates: $1\text{e-}08$, $1\text{e-}07$, $1\text{e-}06$, $1\text{e-}05$, $1\text{e-}04$, $1\text{e-}03$, $1\text{e-}02$, and $1\text{e-}01$. 
 % [.10, 0.01, 0.001, 0.0001, 0.00001,  0.000001, 0.0000001, 0.00000001]
 For all experimental conditions, we ran ten replicates, each with a unique random number seed. 
@@ -323,15 +340,15 @@ We analyzed trends in our metrics using the R Statistical Computing Language~\ci
 
 Overall, our results were consistent with what evolutionary theory would predict. As mutation rate increases, coalescence takes longer, as evidenced by the fact that the MRCA is farther back in time at higher mutation rates (see Figure \ref{fig:mutation_rate}). Consequently, phylogenetic richness (as measured by phylogenetic diversity) is higher at higher mutation rates. Phylogenetic divergence, measured here as mean pairwise distance between taxa, is similarly higher at higher mutation rates. Evolutionary distinctiveness, being another measurement of phylogenetic divergence, behaved almost identically (see Supplementary Material). Variance of evolutionary distinctiveness and pairwise distance between taxa (phylogenetic regularity metrics) behaved very similarly to the phylogenetic divergence metrics. This pattern makes sense, as most phylogenetic divergence on these landscapes will produce unbalanced phylogenetic trees. If there were stable coexistence between multiple clades, we would expect to see a reduced correlation between the phylogenetic divergence metrics and the phylogenetic regularity metrics. Increased mutation rate also increases the number of deleterious steps taken, a logical consequence of increasing the amount of mutation relative to the strength of selection.
 
-\begin{figure*}
-\includegraphics[width=7in]{figs/all_ts.png}
+\begin{figure}
+\includegraphics[width=3.5in]{figs/all_ts.png}
 \caption{Values of example metrics across different tournament sizes for each of the four problems. All experiments shown here used a mutation rate of .001. Circles are medians and vertical lines show inter-quartile range.}
 \label{fig:ts}
-\end{figure*}
+\end{figure}
 
 Similarly, increasing tournament size generally increases the rate of coalescence, as higher tournament sizes correspond to stronger selection (see Figure \ref{fig:ts}). As a result, all of the measurements of phylogenetic richness and divergence decrease as tournament size increases. MRCA depth, on the other hand, increases, directly reflecting the increased frequency of selective sweeps. 
 
-Surprisingly, there is no clear effect of tournament size on the count of deleterious steps along the dominant lineage. Values for all selection schemes and tournament sizes hover near 2,500, meaning that a deleterious step is taken in roughly half of the 5000 generations. This is partially an effect of mutation rate; at the lowest mutation rate, there is a clear trend towards fewer deleterious steps as tournament size increases (see Supplementary Material). However, the effect of mutation rate on the relationship between tournament size and dominant deleterious steps is complex, particularly for composition function 2 (see Supplementary Material). These trends likely share a common cause with the thresholding effect evident in Figure \ref{fig:mutation_rate}, where the number of deleterious steps along the dominant lineage abruptly climbs between mutation rates of 0.0000001 and .00001 and remains relatively flat over other mutation rates. Based on an inspection of the 3-dimensional fitness landscape visualizations, we can see that this is not an effect of lineages moving from peak-to-peak; at most mutation rates, they tend to remain on a single peak. Thus, we can infer that this effect is the result of a drift-like phenomenon where, at sufficiently high mutation rates, all members of the population are constantly somewhat displaced from the fitness peak.
+Surprisingly, there is no clear effect of tournament size on the count of deleterious steps along the dominant lineage. Values for all selection schemes and tournament sizes hover near 2,500, meaning that a deleterious step is taken in roughly half of the 5000 generations. This is partially an effect of mutation rate; at the lowest mutation rate, there is a clear trend towards fewer deleterious steps as tournament size increases (see Supplementary Material). However, the effect of mutation rate on the relationship between tournament size and dominant deleterious steps is complex, particularly for composition function 2 (see Supplementary Material). These trends likely share a common cause with the thresholding effect evident in Figure \ref{fig:mutation_rate}, where the number of deleterious steps along the dominant lineage abruptly climbs between mutation rates of 0.0000001 and 0.00001 and remains relatively flat over other mutation rates. Based on an inspection of the 3-dimensional fitness landscape visualizations, we can see that this is not an effect of lineages moving from peak-to-peak; at most mutation rates, they tend to remain on a single peak. Thus, we can infer that this effect is the result of a drift-like phenomenon where, at sufficiently high mutation rates, all members of the population are constantly somewhat displaced from their local fitness peak.
 
 
 \section{Conclusions}
@@ -344,6 +361,17 @@ The primary goal of this work is two-fold: 1) to communicate a set of useful met
 In this work we demonstrated the suite of lineage and phylogeny metrics on a set of toy problems where evolving digital organisms are overly simplistic. Next, we plan to apply these metrics to more complex digital organisms that we evolve in a variety of qualitatively different environments where we would expect to observe a wide range of evolutionary dynamics. 
 
 \section{Acknowledgements}
+
+% Extend thanks to:
+%  - Devolab; thoughful discussions and whatnot
+
+% Monies:
+%  -  GRFP: Grants DGE-1424871
+%   - NSF MT Grant: DEB-1655715. 
+%   - BEACON
+
+% Other resources:
+%   - MSU HPCC
 
 \setlength{\bibsep}{2pt}
 
