@@ -135,7 +135,9 @@ For each metric, we discuss its application and our intuition for what it can te
 
 %@AML:  It might be nice to wrap this section up with a little bit of a 'call to action'/'why should you care about this as a community'
 %@ELD: I am in favor.
-In addition to demonstrating a range of metrics that are immediately applicable and useful to digital evolution research, we intend for this work to begin a conversation within the computational evolution community about how we quantify, interpret, and compare observed evolutionary histories. There has been extensive efforts to improve our ability to visualize both lineages and phylogenies [CITATIONS], which are incredibly valuable for building intuitions and qualitatively understanding the dynamics embedded in a population's evolutionary history. However, we are unaware of efforts to formalize a suite of quantitative lineage and phylogeny-related metrics for computation evolution. Indeed, .... % people have done stuff with lineages
+In addition to demonstrating a range of metrics that are immediately applicable and useful to digital evolution research, we intend for this work to begin a conversation within the %computational evolution
+artificial life
+community about how we quantify, interpret, and compare observed evolutionary histories. There has been extensive efforts to improve our ability to visualize both lineages and phylogenies [CITATIONS], which are %incredibly valuable for building intuitions and qualitatively understanding the dynamics embedded in a population's evolutionary history. However, we are unaware of efforts to formalize a suite of quantitative lineage and phylogeny-related metrics for computation evolution. Indeed, .... % people have done stuff with lineages
 % - often a component of a larger experiment-specific analysis or limited to qualitative descriptions/visualizations
 % - well-defined metrics not only provide valuable tools for teasing apart evolutionary dynamics, they also facilitate allow us to move away from exclusively qualitative descriptions/understandings of results ==> better quantitative understanding/statistics ==> better hypothesis testing
 % - facilitate comparisons among systems. 
@@ -332,11 +334,11 @@ We analyzed trends in our metrics using the R Statistical Computing Language~\ci
 % All combinations can be found in supplementary material. 
 
 % Changing mutation: here's what happens when we change mutation on each problem
-\begin{figure*}
-\includegraphics[width=7in]{figs/all_mutation_rate.png}
+\begin{figure}
+\includegraphics[width=3.5in]{figs/all_mutation_rate.png}
 \caption{Values of example metrics across different mutation rates for each of the four problems. All experiments shown here used a tournament size of 4. Circles are medians and vertical lines show inter-quartile range.}
 \label{fig:mutation_rate}
-\end{figure*}
+\end{figure}
 
 Overall, our results were consistent with what evolutionary theory would predict. As mutation rate increases, coalescence takes longer, as evidenced by the fact that the MRCA is farther back in time at higher mutation rates (see Figure \ref{fig:mutation_rate}). Consequently, phylogenetic richness (as measured by phylogenetic diversity) is higher at higher mutation rates. Phylogenetic divergence, measured here as mean pairwise distance between taxa, is similarly higher at higher mutation rates. Evolutionary distinctiveness, being another measurement of phylogenetic divergence, behaved almost identically (see Supplementary Material). Variance of evolutionary distinctiveness and pairwise distance between taxa (phylogenetic regularity metrics) behaved very similarly to the phylogenetic divergence metrics. This pattern makes sense, as most phylogenetic divergence on these landscapes will produce unbalanced phylogenetic trees. If there were stable coexistence between multiple clades, we would expect to see a reduced correlation between the phylogenetic divergence metrics and the phylogenetic regularity metrics. Increased mutation rate also increases the number of deleterious steps taken, a logical consequence of increasing the amount of mutation relative to the strength of selection.
 
