@@ -42,6 +42,11 @@ Configuration options can be specified on the command line or via a configs.cfg 
      (as opposed to in a web browser)
   - *scripts*: Contains scripts used for wrangling jobs on our High-Performance Computing Cluster.
   - *CEC2013*: Contains the C++ implementation of the CEC benchmark functions. From [here](https://github.com/mikeagn/CEC2013).
+- **configs**: Directory contained information about how our experiments were configured.
+  - *configs.cfg*: Base configuration file listing default settings. Spcific settings were changed for each condition
+    via command line flags.
+  - *generated_run_list files*: These files list all of the precise conditions that we ran, complete with command-line flags.
+    The run_list format is designed to be submitted to a PBS scheduling system using [dist_qsub](https://github.com/emilydolson/dist_qsub).
 - **analysis**:  Directory containing all code used to analyze the data
   - *data_analysis.Rmd*: R-markdwon file containing all of the stats and plotting code
   - *fitness_landscape_visualization*: Code to make the WebVR fitness landscape data visualization (this is a submodule, 
