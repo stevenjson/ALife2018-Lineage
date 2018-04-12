@@ -45,7 +45,7 @@ Configuration options can be specified on the command line or via a configs.cfg 
 - **analysis**:  Directory containing all code used to analyze the data
   - *data_analysis.Rmd*: R-markdwon file containing all of the stats and plotting code
   - *fitness_landscape_visualization*: Code to make the WebVR fitness landscape data visualization (this is a submodule, 
-    linked to the [this repository](https://github.com/emilydolson/fitness_landscape_visualizations)). Note that all data for
+    linked to [this repository](https://github.com/emilydolson/fitness_landscape_visualizations)). Note that all data for
     this experiment is in the data subdirectory of this submodule.
   - *cec_python_library*: Contains code that depends on the CEC benchmark function Python implementation:
     - cec2013: the Python implementation of the CEC benchmark functions. From [here](https://github.com/mikeagn/CEC2013).
