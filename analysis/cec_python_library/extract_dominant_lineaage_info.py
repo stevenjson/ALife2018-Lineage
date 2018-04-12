@@ -1,16 +1,20 @@
 #!/home/emily/anaconda2/bin/python
-###############################################################################
-# Version: 1.1
-# Last modified on: 3 April, 2016 
-# Developers: Michael G. Epitropakis
-#      email: m_(DOT)_epitropakis_(AT)_lancaster_(DOT)_ac_(DOT)_uk 
-###############################################################################
+
 from cec2013.cec2013 import *
 import numpy as np
 import sys
 import pandas as pd
 import glob
 import os
+
+# This script expects two command line arguments:
+#   - a glob-style pattern indicating which directories to analyze
+#         (remember to put quotation marks around it)
+#   - the name of a file to store data in
+
+# It will extract the path (x, y, and z coordinates) taken by the fittest
+# lineage from the phylogeny_5000.csv file from each directory matched by
+# the glob pattern provided in the first command-line argument.
 
 def main():
 
@@ -77,7 +81,7 @@ def main():
 			# print(df.loc[curr_id, :])
 			fits.append(df.loc[curr_id, "fitness"])
 			
-			# path.append(" ".join(["{:.2f}".format(i) for i in [df.loc[curr_id, "x"], df.loc[curr_id, "y"], df.loc[curr_id, "fitness"]]]))
+			 path.append(" ".join(["{:.2f}".format(i) for i in [df.loc[curr_id, "x"], df.loc[curr_id, "y"], df.loc[curr_id, "fitness"]]]))
 			if (df.loc[curr_id, "parent_id"] == 1):
 				break
 			x_magnitude += abs(df.loc[df.loc[curr_id, "parent_id"], "x"] - df.loc[curr_id, "x"]) 
