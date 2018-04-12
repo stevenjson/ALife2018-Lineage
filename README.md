@@ -5,6 +5,28 @@ LaTeX code for the paper).
 
 ![Cartoon describing the metrics proposed in this paper](figs/lineage_metrics_cartoon.png)
 
+### Dependencies:
+
+For re-running experiments:
+- [Empirical](https://github.com/emilydolson/Empirical): A library of tools for writing scientific software in C++
+- Technically the [CEC Niching Competition Benchmark Function Library](https://github.com/mikeagn/CEC2013), but that code
+  is included in this repository for convenience.
+  
+For data analysis:
+- Python 2.x for everything involving the benchmark functions
+- Python 3.x for any other scripts.
+- [R](https://www.r-project.org/) and [ggplot2](http://ggplot2.org/) for the stats
+
+### Re-running the experiment:
+
+```
+cd experiment
+make
+./optimization_problems
+```
+
+Configuration options can be specified on the command line or via a configs.cfg file.
+
 ### Contents:
 - **paper.tex**: LaTeX code for paper (submitted to ALife 2018).
 - **LICENSE**: The MIT license, under which all of our code is available (note: this repository also contains code from the 
