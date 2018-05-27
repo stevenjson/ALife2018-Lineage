@@ -3,6 +3,8 @@
 This repo contains all of the code used to generate the paper (including running the experiments, doing data analysis, and
 LaTeX code for the paper).
 
+[![DOI](https://zenodo.org/badge/129148471.svg)](https://zenodo.org/badge/latestdoi/129148471)
+
 ![Cartoon describing the metrics proposed in this paper](figs/lineage_metrics_cartoon.png)
 
 ### Dependencies:
