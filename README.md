@@ -3,6 +3,10 @@
 This repo contains all of the code used to generate the paper (including running the experiments, doing data analysis, and
 LaTeX code for the paper).
 
+Supplementary material for this paper (in the form of a file that shows the code and graphs for all analysis, including the analysis that didn't fit in the paper) is available [here](https://stevenjson.github.io/ALife2018-Lineage/analysis/data_analysis.html).
+
+Virtual reality/WebGL data visualizations of the fitness landscapes can be found [here](https://stevenjson.github.io/ALife2018-Lineage/analysis/fitness_landscape_visualizations/).
+
 [![DOI](https://zenodo.org/badge/129148471.svg)](https://zenodo.org/badge/latestdoi/129148471)
 
 ![Cartoon describing the metrics proposed in this paper](figs/lineage_metrics_cartoon.png)
